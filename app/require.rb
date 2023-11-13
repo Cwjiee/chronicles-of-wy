@@ -1,1 +1,1 @@
-require 'app/scene_one.rb'
+require 'app/scene_one'

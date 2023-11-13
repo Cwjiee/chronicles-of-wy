@@ -1,7 +1,7 @@
 def spawn_falling_objects(args)
   type = rand(3)
   {
-    x: rand(args.state.grid.w) + 60,
+    x: rand(args.grid.w),
     y: args.grid.h - 60,
     w: 60,
     h: 60,
@@ -31,7 +31,34 @@ def dragon_movement args
 end
 
 def falling_objects_movement args
-  args.state.falling_objects.each { |x| x.y -= x.speed }
+  args.state.falling_objects.each do |obj|
+    obj.y -= obj.speed
+    if obj.y.negative?
+      obj.dead = true
+      args.state.falling_objects << spawn_falling_objects(args)
+    end
+  end
+end
+
+def game_timer(args)
+  args.state.timer -= 1
+
+  if args.state.timer.negative?
+    labels = []
+    labels << {
+      x: 40,
+      y: args.grid.h - 40,
+      text: "Time's Up!",
+      size_enum: 10
+    }
+    labels << {
+      x: 40,
+      y: args.grid.h - 132,
+      text: 'enter to try again',
+      size_enum: 2
+    }
+    args.outputs.labels << labels
+  end
 end
 
 def scoring_logic args
@@ -46,6 +73,7 @@ end
 
 def first_scene(args)
   args.state.score ||= 0
+  args.state.timer ||= 30 * 60
   args.state.dragon ||= {
     x: 640 - 60,
     y: 0,
@@ -59,7 +87,23 @@ def first_scene(args)
   ]
 
   args.outputs.sprites << [args.state.dragon, args.state.falling_objects]
+  args.outputs.labels << [
+    {
+      x: 40,
+      y: args.grid.h - 40,
+      text: "Score: #{args.state.score}",
+      size_enum: 4
+    },
+    {
+      x: args.grid.w - 40,
+      y: args.grid.h - 40,
+      text: "Timer: #{(args.state.timer / 60).round}",
+      size_enum: 2,
+      alignment_enum: 2
+    }
+  ]
 
+  game_timer(args)
   dragon_movement args
   falling_objects_movement args
 
