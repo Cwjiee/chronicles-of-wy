@@ -44,20 +44,8 @@ def game_timer(args)
   args.state.timer -= 1
 
   if args.state.timer.negative?
-    labels = []
-    labels << {
-      x: 40,
-      y: args.grid.h - 40,
-      text: "Time's Up!",
-      size_enum: 10
-    }
-    labels << {
-      x: 40,
-      y: args.grid.h - 132,
-      text: 'enter to try again',
-      size_enum: 2
-    }
-    args.outputs.labels << labels
+    args.state.scene = 'first_gameover'
+    return
   end
 end
 
@@ -69,6 +57,44 @@ def scoring_logic args
       args.state.score += 1
     end
   end
+end
+
+def first_gameover_scene(args)
+  labels = []
+  if args.state.score < 10
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 90,
+      text: "Time's Up!",
+      size_enum: 10
+    }
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 132,
+      text: 'Press space to try again',
+      size_enum: 2
+    }
+
+    $gtk.reset if args.inputs.keyboard.key_down.space
+  else
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 90,
+      text: 'You have reached the targeted score!',
+      size_enum: 10
+    }
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 132,
+      text: 'Press space to enter the next stage'
+    }
+
+    if args.inputs.keyboard.key_down.space
+      args.state.scene = 'second'
+      return
+    end
+  end
+  args.outputs.labels << labels
 end
 
 def first_scene(args)
@@ -91,7 +117,7 @@ def first_scene(args)
     {
       x: 40,
       y: args.grid.h - 40,
-      text: "Score: #{args.state.score}",
+      text: "Score: #{args.state.score}/10",
       size_enum: 4
     },
     {
