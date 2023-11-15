@@ -1,7 +1,7 @@
 require 'app/require.rb'
 
 def tick args
-  args.state.scene ||= 'first'
+  args.state.scene ||= 'second'
   send("#{args.state.scene}_scene", $gtk.args)
 end
 
