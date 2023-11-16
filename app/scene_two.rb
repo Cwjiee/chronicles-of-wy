@@ -88,15 +88,13 @@ def inputs args
     args.state.dragon.x += args.state.dragon.speed
   end
 
-  type = rand 3
   if args.inputs.keyboard.key_down.space
     args.state.fireballs << {
       x: args.state.dragon.x + 100,
       y: args.state.dragon.y + 100,
-      w: 50,
+      w: 40,
       h: 50,
-      path: "sprites/misc/fish-#{type}.png",
-      flip_horizontally: true
+      path: 'sprites/wy/fireball.png'
     }
   end
 end
