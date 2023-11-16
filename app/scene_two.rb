@@ -5,9 +5,9 @@ def defaults args
     render_target(args),
     render_target(args),
     render_target(args),
-    render_target(args),
     render_target(args)
   ]
+  args.state.timer ||= 30 * 60
 end
 
 def render args
@@ -81,9 +81,53 @@ def calc args
   end
 
   args.state.targets.reject!(&:dead)
+
+  second_game_timer args
 end
 
-def second_gameover_scene args; end
+def second_game_timer args
+  args.state.timer -= 1
+
+  args.state.scene = 'second_gameover' if args.state.timer.negative?
+end
+
+def second_gameover_scene args
+  labels = []
+  if args.state.score < 10
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 90,
+      text: "Time's Up!",
+      size_enum: 10
+    }
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 132,
+      text: 'Press space to try again',
+      size_enum: 2
+    }
+
+    $gtk.reset if args.inputs.keyboard.key_down.space
+  else
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 90,
+      text: 'You have reached the targeted score!',
+      size_enum: 10
+    }
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 132,
+      text: 'Press space to enter the next stage'
+    }
+
+    if args.inputs.keyboard.key_down.space
+      args.state.scene = 'second'
+      return
+    end
+  end
+  args.outputs.labels << labels
+end
 
 def second_scene args
   defaults args
