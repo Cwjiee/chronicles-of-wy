@@ -134,5 +134,5 @@ def first_scene(args)
   falling_objects_movement args
 
   scoring_logic args
-  args.state.falling_objects.reject! { |t| t.dead }
+  args.state.falling_objects.reject!(&:dead)
 end
