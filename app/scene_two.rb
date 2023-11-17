@@ -34,7 +34,7 @@ def render_target args
     y: rand(args.grid.h - size * 2) + size,
     w: size,
     h: size,
-    path: "sprites/misc/fish-#{type}.png"
+    path: "sprites/wy/fish-#{type}.png"
   }
 end
 

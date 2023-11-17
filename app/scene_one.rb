@@ -6,7 +6,7 @@ def spawn_falling_objects(args)
     w: 60,
     h: 60,
     speed: 5,
-    path: "sprites/misc/fish-#{type}.png",
+    path: "sprites/wy/fish-#{type}.png",
     dead: false,
     angle: 90
   }
