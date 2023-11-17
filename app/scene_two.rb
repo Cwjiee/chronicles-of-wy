@@ -107,7 +107,7 @@ def second_gameover_scene args
       size_enum: 2
     }
 
-    $gtk.reset if args.inputs.keyboard.key_down.space
+    reset_game(args) if args.inputs.keyboard.key_down.space
   else
     labels << {
       x: (args.grid.w / 2) - 50,
@@ -129,10 +129,29 @@ def second_gameover_scene args
   args.outputs.labels << labels
 end
 
+def reset_game args
+  args.state.score = 0
+  args.state.fireballs = []
+  args.state.targets = [
+    render_target(args),
+    render_target(args),
+    render_target(args),
+    render_target(args)
+  ]
+  args.state.timer = 30 * 60
+  args.state.scene = 'second'
+end
+
 def second_scene args
   defaults args
   render args
   inputs args
   calc args
   args.outputs.sprites << [args.state.dragon, args.state.fireballs, args.state.targets]
+  args.outputs.labels << {
+    x: 50,
+    y: 50,
+    text: "Timer: #{(args.state.timer / 60).round}",
+    size_enum: 10
+  }
 end
