@@ -1,5 +1,4 @@
 def defaults args
-  args.state.score ||= 0
   args.state.fireballs ||= []
   args.state.targets ||= [
     render_target(args),
@@ -8,6 +7,7 @@ def defaults args
     render_target(args)
   ]
   args.state.timer ||= 30 * 60
+  args.state.finish ||= false
 end
 
 def render args
@@ -88,12 +88,15 @@ end
 def second_game_timer args
   args.state.timer -= 1
 
-  args.state.scene = 'second_gameover' if args.state.timer.negative?
+  return unless args.state.timer.negative?
+
+  args.state.finish = true
+  args.state.scene = 'second_gameover'
 end
 
 def second_gameover_scene args
   labels = []
-  if args.state.score < 10
+  if !args.state.finish
     labels << {
       x: (args.grid.w / 2) - 50,
       y: args.grid.h - 90,
@@ -112,7 +115,7 @@ def second_gameover_scene args
     labels << {
       x: (args.grid.w / 2) - 50,
       y: args.grid.h - 90,
-      text: 'You have reached the targeted score!',
+      text: 'You have reached the targeted time!',
       size_enum: 10
     }
     labels << {
@@ -130,7 +133,7 @@ def second_gameover_scene args
 end
 
 def second_scene_reset args
-  args.state.score = 0
+  args.state.finish = false
   args.state.fireballs = []
   args.state.targets = [
     render_target(args),

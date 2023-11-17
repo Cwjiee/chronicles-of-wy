@@ -61,7 +61,7 @@ end
 
 def first_gameover_scene(args)
   labels = []
-  if args.state.score < 10
+  if args.state.score < 3
     labels << {
       x: (args.grid.w / 2) - 50,
       y: args.grid.h - 90,
@@ -99,7 +99,7 @@ end
 
 def first_scene_reset args
   args.state.score = 0
-  args.state.timer = 30 * 60
+  args.state.timer = 10 * 60
   args.state.dragon = {
     x: 640 - 60,
     y: 0,
@@ -116,7 +116,7 @@ end
 
 def first_scene(args)
   args.state.score ||= 0
-  args.state.timer ||= 30 * 60
+  args.state.timer ||= 10 * 60
   args.state.dragon ||= {
     x: 640 - 60,
     y: 0,
