@@ -107,7 +107,7 @@ def second_gameover_scene args
       size_enum: 2
     }
 
-    reset_game(args) if args.inputs.keyboard.key_down.space
+    second_scene_reset(args) if args.inputs.keyboard.key_down.space
   else
     labels << {
       x: (args.grid.w / 2) - 50,
@@ -129,7 +129,7 @@ def second_gameover_scene args
   args.outputs.labels << labels
 end
 
-def reset_game args
+def second_scene_reset args
   args.state.score = 0
   args.state.fireballs = []
   args.state.targets = [

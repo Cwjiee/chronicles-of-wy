@@ -75,7 +75,7 @@ def first_gameover_scene(args)
       size_enum: 2
     }
 
-    $gtk.reset if args.inputs.keyboard.key_down.space
+    first_scene_reset(args) if args.inputs.keyboard.key_down.space
   else
     labels << {
       x: (args.grid.w / 2) - 50,
@@ -95,6 +95,23 @@ def first_gameover_scene(args)
     end
   end
   args.outputs.labels << labels
+end
+
+def first_scene_reset args
+  args.state.score = 0
+  args.state.timer = 30 * 60
+  args.state.dragon = {
+    x: 640 - 60,
+    y: 0,
+    w: 100,
+    h: 100,
+    speed: 8,
+    flip_horizontally: false
+  }
+  args.state.falling_objects = [
+    spawn_falling_objects(args)
+  ]
+  args.state.scene = 'first'
 end
 
 def first_scene(args)
