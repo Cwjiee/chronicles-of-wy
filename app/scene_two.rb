@@ -125,7 +125,7 @@ def second_gameover_scene args
     }
 
     if args.inputs.keyboard.key_down.space
-      args.state.scene = 'second'
+      args.state.scene = 'third'
       return
     end
   end
