@@ -128,8 +128,15 @@ def first_scene(args)
   args.state.falling_objects ||= [
     spawn_falling_objects(args)
   ]
+  args.state.first_bg ||= {
+    x: 0,
+    y: 0,
+    w: args.grid.w,
+    h: args.grid.h,
+    path: 'sprites/wy/Background1.png'
+  }
 
-  args.outputs.sprites << [args.state.dragon, args.state.falling_objects]
+  args.outputs.sprites << [args.state.first_bg, args.state.dragon, args.state.falling_objects]
   args.outputs.labels << [
     {
       x: 40,

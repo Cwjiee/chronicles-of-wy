@@ -8,6 +8,13 @@ def second_defaults args
   ]
   args.state.second_timer ||= 15 * 60
   args.state.finish ||= false
+  args.state.second_bg ||= {
+    x: 0,
+    y: 0,
+    w: args.grid.w,
+    h: args.grid.h,
+    path: 'sprites/wy/Background2.png'
+  }
 end
 
 def second_render args
@@ -152,7 +159,7 @@ def second_scene args
   second_render args
   second_inputs args
   second_calc args
-  args.outputs.sprites << [args.state.second_dragon, args.state.fireballs, args.state.targets]
+  args.outputs.sprites << [args.state.second_bg, args.state.second_dragon, args.state.fireballs, args.state.targets]
   if args.state.second_timer
     args.outputs.labels << {
       x: 50,

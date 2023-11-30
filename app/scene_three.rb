@@ -16,6 +16,13 @@ def defaults(args)
   args.state.third_timer ||= 3 * 60
   args.state.third_finish ||= false
   args.state.block ||= false
+  args.state.third_bg ||= {
+    x: 0,
+    y: 0,
+    w: args.grid.w,
+    h: args.grid.h,
+    path: 'sprites/wy/Background3.png'
+  }
 end
 
 def render_dragon args
@@ -77,7 +84,7 @@ def render args
     }
   end
 
-  args.outputs.sprites << [args.state.griffin, args.state.final_dragon, args.state.fireballs_atk, args.state.enemy_atk]
+  args.outputs.sprites << [args.state.third_bg, args.state.griffin, args.state.final_dragon, args.state.fireballs_atk, args.state.enemy_atk]
 end
 
 def inputs args
