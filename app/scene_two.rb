@@ -1,21 +1,21 @@
-def defaults args
+def second_defaults args
   args.state.fireballs ||= []
   args.state.targets ||= [
-    render_target(args),
-    render_target(args),
-    render_target(args),
-    render_target(args)
+    second_render_target(args),
+    second_render_target(args),
+    second_render_target(args),
+    second_render_target(args)
   ]
-  args.state.timer ||= 30 * 60
+  args.state.second_timer ||= 15 * 60
   args.state.finish ||= false
 end
 
-def render args
-  render_dragon args
+def second_render args
+  second_render_dragon args
 end
 
-def render_dragon args
-  args.state.dragon ||= {
+def second_render_dragon args
+  args.state.second_dragon ||= {
     x: 50,
     y: 500,
     w: 200,
@@ -24,9 +24,11 @@ def render_dragon args
     path: 'sprites/wy/Wy2.png',
     flip_horizontally: true
   }
+  sprite_index = 0.frame_index(count: 2, hold_for: 18, repeat: true)
+  args.state.second_dragon.path = "sprites/wy/teen-#{sprite_index}.png"
 end
 
-def render_target args
+def second_render_target args
   size = 64
   type = rand 3
   {
@@ -34,47 +36,47 @@ def render_target args
     y: rand(args.grid.h - size * 2) + size,
     w: size,
     h: size,
-    path: "sprites/wy/fish-#{type}.png"
+    path: "sprites/wy/Rock#{type + 1}.png"
   }
 end
 
-def inputs args
+def second_inputs args
   if args.inputs.keyboard.key_held.w
-    args.state.dragon.y += args.state.dragon.speed
+    args.state.second_dragon.y += args.state.second_dragon.speed
   elsif args.inputs.keyboard.key_held.a
-    args.state.dragon.x -= args.state.dragon.speed
+    args.state.second_dragon.x -= args.state.second_dragon.speed
   elsif args.inputs.keyboard.key_held.s
-    args.state.dragon.y -= args.state.dragon.speed
+    args.state.second_dragon.y -= args.state.second_dragon.speed
   elsif args.inputs.keyboard.key_held.d
-    args.state.dragon.x += args.state.dragon.speed
+    args.state.second_dragon.x += args.state.second_dragon.speed
   end
 
   return unless args.inputs.keyboard.key_down.space
 
   args.state.fireballs << {
-    x: args.state.dragon.x + 100,
-    y: args.state.dragon.y + 100,
+    x: args.state.second_dragon.x + 100,
+    y: args.state.second_dragon.y + 100,
     w: 40,
     h: 50,
     path: 'sprites/wy/fireball.png'
   }
 end
 
-def calc args
+def second_calc args
   args.state.fireballs.each do |fireball|
-    fireball.x += args.state.dragon.speed + 2
+    fireball.x += args.state.second_dragon.speed + 2
     fireball.dead = true if fireball.x.negative?
   end
 
   args.state.fireballs.reject!(&:dead)
 
   args.state.targets.each do |target|
-    target.x -= args.state.dragon.speed
+    target.x -= args.state.second_dragon.speed
     if target.x.negative?
       target.dead = true
-      args.state.targets << render_target(args)
+      args.state.targets << second_render_target(args)
     end
-    if target.intersect_rect? args.state.dragon
+    if target.intersect_rect? args.state.second_dragon
       args.state.scene = 'second_gameover'
       break
     end
@@ -86,9 +88,9 @@ def calc args
 end
 
 def second_game_timer args
-  args.state.timer -= 1
+  args.state.second_timer -= 1
 
-  return unless args.state.timer.negative?
+  return unless args.state.second_timer.negative?
 
   args.state.finish = true
   args.state.scene = 'second_gameover'
@@ -124,7 +126,7 @@ def second_gameover_scene args
       text: 'Press space to enter the next stage'
     }
 
-    if args.inputs.keyboard.key_down.space
+    if args.inputs.keyboard.key_down.space && args.state.finish
       args.state.scene = 'third'
       return
     end
@@ -136,25 +138,27 @@ def second_scene_reset args
   args.state.finish = false
   args.state.fireballs = []
   args.state.targets = [
-    render_target(args),
-    render_target(args),
-    render_target(args),
-    render_target(args)
+    second_render_target(args),
+    second_render_target(args),
+    second_render_target(args),
+    second_render_target(args)
   ]
-  args.state.timer = 30 * 60
+  args.state.second_timer = 15 * 60
   args.state.scene = 'second'
 end
 
 def second_scene args
-  defaults args
-  render args
-  inputs args
-  calc args
-  args.outputs.sprites << [args.state.dragon, args.state.fireballs, args.state.targets]
-  args.outputs.labels << {
-    x: 50,
-    y: 50,
-    text: "Timer: #{(args.state.timer / 60).round}",
-    size_enum: 10
-  }
+  second_defaults args
+  second_render args
+  second_inputs args
+  second_calc args
+  args.outputs.sprites << [args.state.second_dragon, args.state.fireballs, args.state.targets]
+  if args.state.second_timer
+    args.outputs.labels << {
+      x: 50,
+      y: 50,
+      text: "timer: #{(args.state.second_timer / 60).round}",
+      size_enum: 10
+    }
+  end
 end

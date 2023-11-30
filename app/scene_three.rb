@@ -1,23 +1,26 @@
 def defaults(args)
   args.state.buttons ||= [
-    create_button(args, id: :button_1, row: 12, col: 4, text: 'button 1'),
-    create_button(args, id: :button_2, row: 12, col: 8, text: 'button 2'),
-    create_button(args, id: :clear, row: 12, col: 12, text: 'clear')
+    create_button(args, id: :button_1, row: 11, col: 6, text: 'fireball'),
+    create_button(args, id: :button_2, row: 11, col: 10, text: 'block'),
+    create_button(args, id: :skip, row: 11, col: 14, text: 'skip')
   ]
-  args.state.enemies ||= render_enemies(args)
+  args.state.griffin ||= render_enemies(args)
 
-  args.state.fireballs ||= []
+  args.state.fireballs_atk ||= []
+  args.state.enemy_atk ||= []
   args.state.dragon_hitpoint ||= 100
   args.state.hitpoint ||= 100
   args.state.fireball_dmg ||= 20
   args.state.enemy_dmg ||= 15
   args.state.turn_index ||= 0
-  args.state.timer ||= 3 * 60
+  args.state.third_timer ||= 3 * 60
+  args.state.third_finish ||= false
+  args.state.block ||= false
 end
 
 def render_dragon args
-  args.state.dragon ||= {
-    x: (args.grid.w / 2) - 50,
+  args.state.final_dragon ||= {
+    x: (args.grid.w / 2) - 150,
     y: 200,
     w: 200,
     h: 150,
@@ -29,7 +32,7 @@ end
 
 def render_enemies args
   {
-    x: (args.grid.w / 2) - 50,
+    x: (args.grid.w / 2) - 150,
     y: 500,
     w: 200,
     h: 150,
@@ -49,16 +52,16 @@ def render args
   render_dragon args
 
   args.outputs.labels << {
-    x: args.state.enemies.x,
-    y: args.state.enemies.y + args.state.enemies.h,
+    x: args.state.griffin.x,
+    y: args.state.griffin.y + args.state.griffin.h,
     text: args.state.hitpoint.to_s,
     alignment_enum: 1,
     vertical_alignment_enum: 1
   }
 
   args.outputs.labels << {
-    x: args.state.dragon.x,
-    y: args.state.dragon.y + args.state.dragon.h,
+    x: args.state.final_dragon.x,
+    y: args.state.final_dragon.y + args.state.final_dragon.h,
     text: args.state.dragon_hitpoint.to_s,
     alignment_enum: 1,
     vertical_alignment_enum: 1
@@ -66,16 +69,15 @@ def render args
 
   if args.state.center_label_text
     args.outputs.labels << {
-      x: 640,
-      y: 360,
+      x: args.grid.w - 150,
+      y: 100,
       text: args.state.center_label_text,
       alignment_enum: 1,
-      vertical_alignment_enum: 1
+      vertical_alignmet_enum: 1
     }
   end
 
-
-  args.outputs.sprites << [args.state.enemies, args.state.dragon, args.state.fireballs]
+  args.outputs.sprites << [args.state.griffin, args.state.final_dragon, args.state.fireballs_atk, args.state.enemy_atk]
 end
 
 def inputs args
@@ -85,33 +87,24 @@ def inputs args
     end
 
     fireball = {
-      x: args.state.dragon.x + 100,
-      y: args.state.dragon.y + 100,
+      x: args.state.final_dragon.x + 100,
+      y: args.state.final_dragon.y + 100,
       w: 40,
       h: 50,
-      path: 'sprites/wy/fireball.png'
-    }
-
-    big_fireball = {
-      x: args.state.dragon.x + 100,
-      y: args.state.dragon.y + 100,
-      w: 70,
-      h: 80,
       path: 'sprites/wy/fireball.png'
     }
 
     if args.state.turn_index % 2 == 0
       case button.id
       when :button_1
-        args.state.fireballs << fireball
-        args.state.center_label_text = 'button 1 was clicked'
+        args.state.fireballs_atk << fireball
+        args.state.center_label_text = 'used fireball attack'
         args.state.turn_index += 1
       when :button_2
-        args.state.fireballs << big_fireball
-        args.state.center_label_text = 'button 2 was clicked'
+        args.state.block = true
+        args.state.center_label_text = 'block next enemy attack'
         args.state.turn_index += 1
-      when :clear
-        args.state.center_label_text = nil
+      when :skip
         args.state.turn_index += 1
       end
     end
@@ -119,40 +112,65 @@ def inputs args
 end
 
 def calc args
-  args.state.fireballs.each do |fireball|
-    fireball.y += args.state.dragon.speed + 2
+  args.state.fireballs_atk.each do |fireball|
+    fireball.y += args.state.final_dragon.speed + 2
     fireball.dead = true if fireball.x > args.grid.h
-    if fireball.intersect_rect? args.state.enemies
+    if fireball.intersect_rect? args.state.griffin
       args.state.hitpoint -= args.state.fireball_dmg
       fireball.dead = true
     end
   end
 
-  args.state.fireballs.reject!(&:dead)
+  args.state.fireballs_atk.reject!(&:dead)
 
   if args.state.turn_index % 2 != 0
-    args.state.timer -= 1
+    args.state.third_timer -= 1
   end
 
-  if args.state.timer.negative?
-    args.state.dragon_hitpoint -= 20
+  if args.state.third_timer.negative?
+    args.state.center_label_text = 'enemy used fireball'
+    args.state.enemy_atk << {
+      x: args.state.griffin.x + 100,
+      y: args.state.griffin.y + 100,
+      w: 40,
+      h: 50,
+      path: 'sprites/wy/fireball.png'
+    }
     args.state.turn_index += 1
-    args.state.timer = 3 * 60
-    puts 'again'
+    args.state.third_timer = 3 * 60
   end
+
+  args.state.enemy_atk.each do |fireball|
+    fireball.y -= args.state.final_dragon.speed + 2
+    fireball.dead = true if fireball.y < 0
+    if fireball.intersect_rect? args.state.final_dragon
+      if !args.state.block
+        args.state.dragon_hitpoint -= 20
+      else
+        args.state.center_label_text = 'blocked enemy attack'
+        args.state.block = false
+      end
+      fireball.dead = true
+    end
+  end
+
+  args.state.enemy_atk.reject!(&:dead)
 
   check_gameover args
 end
 
 def check_gameover args
-  if args.state.dragon_hitpoint <= 0 || args.state.hitpoint <= 0
-    args.state.scene = "third_gameover"
+  if args.state.dragon_hitpoint <= 0
+    args.state.scene = 'third_gameover'
+  elsif args.state.hitpoint <= 0
+    args.state.third_finish = true
+    args.state.scene = 'third_gameover'
   end
 end
 
 def third_gameover_scene args
   labels = []
-  if !args.state.finish
+  if !args.state.third_finish
     labels << {
       x: (args.grid.w / 2) - 50,
       y: args.grid.h - 90,
@@ -222,7 +240,7 @@ end
 
 def third_scene(args)
   defaults args
-  render args
   inputs args
   calc args
+  render args
 end

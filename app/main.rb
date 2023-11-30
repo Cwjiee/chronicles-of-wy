@@ -4,7 +4,7 @@ def tick args
   if !args.inputs.keyboard.has_focus && args.state.tick_count != 0
     pause_scene args
   else
-    args.state.scene ||= 'third'
+    args.state.scene ||= 'second'
     send("#{args.state.scene}_scene", $gtk.args)
     if args.inputs.keyboard.key_down.escape
       args.state.previous_scene = args.state.scene
