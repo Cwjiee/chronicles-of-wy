@@ -33,7 +33,7 @@ def render_enemies args
     y: 500,
     w: 200,
     h: 150,
-    path: 'sprites/circle/black.png',
+    path: 'sprites/wy/Griffin.png',
     flip_horizontally: true,
     r: 255,
     g: 255,
@@ -140,6 +140,52 @@ def calc args
     args.state.timer = 3 * 60
     puts 'again'
   end
+
+  check_gameover args
+end
+
+def check_gameover args
+  if args.state.dragon_hitpoint <= 0 || args.state.hitpoint <= 0
+    args.state.scene = "third_gameover"
+  end
+end
+
+def third_gameover_scene args
+  labels = []
+  if !args.state.finish
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 90,
+      text: "Time's Up!",
+      size_enum: 10
+    }
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 132,
+      text: 'Press space to try again',
+      size_enum: 2
+    }
+
+    second_scene_reset(args) if args.inputs.keyboard.key_down.space
+  else
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 90,
+      text: 'You have defeated the enemy',
+      size_enum: 10
+    }
+    labels << {
+      x: (args.grid.w / 2) - 50,
+      y: args.grid.h - 132,
+      text: 'Press space to enter the next stage'
+    }
+
+    if args.inputs.keyboard.key_down.space
+      args.state.scene = 'end'
+      return
+    end
+  end
+  args.outputs.labels << labels
 end
 
 def create_button(args, id:, row:, col:, text:)

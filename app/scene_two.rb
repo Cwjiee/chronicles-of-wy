@@ -21,7 +21,7 @@ def render_dragon args
     w: 200,
     h: 150,
     speed: 10,
-    path: 'sprites/wy/adult-0.png',
+    path: 'sprites/wy/Wy2.png',
     flip_horizontally: true
   }
 end
