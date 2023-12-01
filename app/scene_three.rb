@@ -27,7 +27,7 @@ end
 
 def render_dragon args
   args.state.final_dragon ||= {
-    x: (args.grid.w / 2) - 150,
+    x: 250,
     y: 200,
     w: 200,
     h: 150,
@@ -39,12 +39,11 @@ end
 
 def render_enemies args
   {
-    x: (args.grid.w / 2) - 150,
-    y: 500,
+    x: args.grid.w - 450,
+    y: 200,
     w: 200,
     h: 150,
     path: 'sprites/wy/Griffin.png',
-    flip_horizontally: true,
     r: 255,
     g: 255,
     b: 255
@@ -63,7 +62,10 @@ def render args
     y: args.state.griffin.y + args.state.griffin.h,
     text: args.state.hitpoint.to_s,
     alignment_enum: 1,
-    vertical_alignment_enum: 1
+    vertical_alignment_enum: 1,
+    r: 53,
+    g: 94,
+    b: 59
   }
 
   args.outputs.labels << {
@@ -71,7 +73,10 @@ def render args
     y: args.state.final_dragon.y + args.state.final_dragon.h,
     text: args.state.dragon_hitpoint.to_s,
     alignment_enum: 1,
-    vertical_alignment_enum: 1
+    vertical_alignment_enum: 1,
+    r: 53,
+    g: 94,
+    b: 59
   }
 
   if args.state.center_label_text
@@ -112,6 +117,7 @@ def inputs args
         args.state.center_label_text = 'block next enemy attack'
         args.state.turn_index += 1
       when :skip
+        args.state.center_label_text = 'skipped move'
         args.state.turn_index += 1
       end
     end
@@ -120,8 +126,8 @@ end
 
 def calc args
   args.state.fireballs_atk.each do |fireball|
-    fireball.y += args.state.final_dragon.speed + 2
-    fireball.dead = true if fireball.x > args.grid.h
+    fireball.x += args.state.final_dragon.speed + 2
+    fireball.dead = true if fireball.x > args.grid.w
     if fireball.intersect_rect? args.state.griffin
       args.state.hitpoint -= args.state.fireball_dmg
       fireball.dead = true
@@ -148,8 +154,8 @@ def calc args
   end
 
   args.state.enemy_atk.each do |fireball|
-    fireball.y -= args.state.final_dragon.speed + 2
-    fireball.dead = true if fireball.y < 0
+    fireball.x -= args.state.final_dragon.speed + 2
+    fireball.dead = true if fireball.x < 0
     if fireball.intersect_rect? args.state.final_dragon
       if !args.state.block
         args.state.dragon_hitpoint -= 20
@@ -171,7 +177,7 @@ def check_gameover args
     args.state.scene = 'third_gameover'
   elsif args.state.hitpoint <= 0
     args.state.third_finish = true
-    args.state.scene = 'third_gameover'
+    args.state.scene = 'end'
   end
 end
 
@@ -181,7 +187,7 @@ def third_gameover_scene args
     labels << {
       x: (args.grid.w / 2) - 50,
       y: args.grid.h - 90,
-      text: "Time's Up!",
+      text: 'Wy is defeated',
       size_enum: 10
     }
     labels << {
@@ -191,7 +197,7 @@ def third_gameover_scene args
       size_enum: 2
     }
 
-    second_scene_reset(args) if args.inputs.keyboard.key_down.space
+    third_scene_reset(args) if args.inputs.keyboard.key_down.space
   else
     labels << {
       x: (args.grid.w / 2) - 50,
@@ -211,6 +217,13 @@ def third_gameover_scene args
     end
   end
   args.outputs.labels << labels
+end
+
+def third_scene_reset args
+  args.state.hitpoint = 100
+  args.state.dragon_hitpoint = 100
+  args.state.turn_index = 0
+  args.state.scene = 'third'
 end
 
 def create_button(args, id:, row:, col:, text:)
